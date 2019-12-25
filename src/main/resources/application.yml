@@ -1,0 +1,4 @@
+tg:
+  creds:
+    name: Notification Bot
+    token: ${TG_BOT_TOKEN}
