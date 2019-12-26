@@ -2,6 +2,8 @@ package io.dzianish.notificationbot.controller.impl;
 
 import io.dzianish.notificationbot.controller.TgCommandController;
 import io.dzianish.notificationbot.controller.TgControllerFacade;
+import io.dzianish.notificationbot.controller.TgConversationController;
+import io.dzianish.notificationbot.controller.TgMessageController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -21,15 +23,28 @@ public class TgControllerFacadeImpl implements TgControllerFacade {
 
     @Override
     public void handleUpdate(Update update) {
-        if (update.hasMessage() && update.getMessage().isCommand()) {
-            handleCommand(update.getMessage());
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+            if (message.isCommand()) {
+                handleMessageOfType(message, TgCommandController.class);
+            } else if (message.isUserMessage()) {
+                handleMessageOfType(message, TgConversationController.class);
+            } else {
+                handleMessage(message);
+            }
         }
     }
 
-    private void handleCommand(Message message) {
-        applicationContext.getBeansOfType(TgCommandController.class)
+
+    private void handleMessage(Message message) {
+        handleMessageOfType(message, TgMessageController.class);
+    }
+
+    private void handleMessageOfType(Message message, Class<? extends TgMessageController> type) {
+        applicationContext.getBeansOfType(type)
                 .values().stream()
                 .filter(bean -> bean.canHandle(message))
                 .forEach(bean -> bean.handle(message));
     }
+
 }
