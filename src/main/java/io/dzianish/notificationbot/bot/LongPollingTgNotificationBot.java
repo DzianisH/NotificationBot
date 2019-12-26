@@ -1,10 +1,9 @@
 package io.dzianish.notificationbot.bot;
 
-import io.dzianish.notificationbot.config.TgBotConfig;
+import io.dzianish.notificationbot.config.TgBotCredentials;
 import io.dzianish.notificationbot.controller.TgControllerFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -12,12 +11,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 @Component
 public class LongPollingTgNotificationBot extends TelegramLongPollingBot implements SelfRegistered {
-    private final TgBotConfig.TgBotCredentials credentials;
+    private final TgBotCredentials credentials;
     private final TgControllerFacade controllerFacade;
 
     @Autowired
-    public LongPollingTgNotificationBot(DefaultBotOptions options, TgBotConfig.TgBotCredentials credentials, TgControllerFacade controllerFacade) {
-        super(options);
+    public LongPollingTgNotificationBot(TgBotCredentials credentials, TgControllerFacade controllerFacade) {
         this.credentials = credentials;
         this.controllerFacade = controllerFacade;
     }

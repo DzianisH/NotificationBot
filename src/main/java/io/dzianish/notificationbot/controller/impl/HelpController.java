@@ -1,41 +1,36 @@
 package io.dzianish.notificationbot.controller.impl;
 
 import io.dzianish.notificationbot.controller.TgCommandController;
+import io.dzianish.notificationbot.sender.TgMessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import org.telegram.telegrambots.meta.bots.AbsSender;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Collections;
 import java.util.List;
 
 @Service
-public class HelpTgCommandController implements TgCommandController {
-    public static final String COMMAND_NAME = "/help";
+public class HelpController implements TgCommandController {
+    private static final String COMMAND_NAME = "/help";
 
-    private final AbsSender absSender;
+    private final TgMessageSender messageSender;
 
     @Autowired
-    public HelpTgCommandController(AbsSender absSender) {
-        this.absSender = absSender;
+    public HelpController(TgMessageSender messageSender) {
+        this.messageSender = messageSender;
     }
 
     @Override
     public void handle(Message message) {
-        var resp = new SendMessage(message.getChatId(), "help message here");
+        var response = new SendMessage(message.getChatId(), "help message here");
 
-        resp.setReplyToMessageId(message.getMessageId());
-        resp.setReplyMarkup(createReplyKeyboardMarkup());
+        response.setReplyToMessageId(message.getMessageId());
+        response.setReplyMarkup(createReplyKeyboardMarkup());
 
-        try {
-            absSender.execute(resp);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        messageSender.send(response);
     }
 
     private ReplyKeyboardMarkup createReplyKeyboardMarkup() {
@@ -51,7 +46,7 @@ public class HelpTgCommandController implements TgCommandController {
 
     private List<KeyboardRow> createKeyBoard() {
         KeyboardRow row = new KeyboardRow();
-        row.add("/help");
+        row.add(getCommand());
         return Collections.singletonList(row);
     }
 
