@@ -6,6 +6,7 @@ import com.google.cloud.dialogflow.v2.QueryResult;
 import com.google.cloud.dialogflow.v2.SessionsClient;
 import com.google.cloud.dialogflow.v2.TextInput;
 import io.dzianish.notificationbot.agent.Agent;
+import io.dzianish.notificationbot.agent.UserAction;
 import io.dzianish.notificationbot.dto.AgentRequest;
 import io.dzianish.notificationbot.dto.AgentResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static io.dzianish.notificationbot.agent.UserAction.defaultAction;
+import static io.dzianish.notificationbot.agent.UserAction.fromName;
 
 @Slf4j
 @Service
@@ -46,9 +50,15 @@ public class DfAgentFacade implements Agent {
     }
 
     private AgentResponse buildAgentResult(AgentRequest request, QueryResult queryResult) {
+        UserAction userAction = queryResult.getAllRequiredParamsPresent()
+                ? fromName(queryResult.getAction())
+                : defaultAction();
+
         return AgentResponse.builder()
                 .text(queryResult.getFulfillmentText())
                 .sessionId(request.getSessionId())
+                .userAction(userAction)
+                .params(queryResult.getParameters())
                 .confidence(queryResult.getIntentDetectionConfidence())
                 .build();
     }
