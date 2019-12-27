@@ -1,6 +1,6 @@
 package io.dzianish.notificationbot.controller.impl;
 
-import io.dzianish.notificationbot.ai.ConversationBot;
+import io.dzianish.notificationbot.agent.Agent;
 import io.dzianish.notificationbot.controller.TgConversationController;
 import io.dzianish.notificationbot.sender.TgMessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +14,18 @@ public class ConversationControllerImpl implements TgConversationController {
     private static final String MENTION_ENTITY_TYPE = "mention";
 
     private final TgMessageSender messageSender;
-    private final ConversationBot conversationBot;
+    private final Agent agent;
 
     @Autowired
-    public ConversationControllerImpl(TgMessageSender messageSender, ConversationBot conversationBot) {
+    public ConversationControllerImpl(TgMessageSender messageSender, Agent agent) {
         this.messageSender = messageSender;
-        this.conversationBot = conversationBot;
+        this.agent = agent;
     }
 
     @Override
     public void handle(Message message) {
         var cleanMessage = extractCleanMessage(message);
-        var answer = conversationBot.talk(cleanMessage);
+        var answer = agent.talk(cleanMessage);
         SendMessage response = buildResponse(message, answer);
         messageSender.send(response);
     }

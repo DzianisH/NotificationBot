@@ -10,12 +10,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 @Component
-public class LongPollingTgNotificationBot extends TelegramLongPollingBot implements SelfRegistered {
+public class LongPollingNotificationTgBot extends TelegramLongPollingBot implements SelfRegisteredTgBot {
     private final TgBotCredentials credentials;
     private final TgControllerFacade controllerFacade;
 
     @Autowired
-    public LongPollingTgNotificationBot(TgBotCredentials credentials, TgControllerFacade controllerFacade) {
+    public LongPollingNotificationTgBot(TgBotCredentials credentials, TgControllerFacade controllerFacade) {
         this.credentials = credentials;
         this.controllerFacade = controllerFacade;
     }
