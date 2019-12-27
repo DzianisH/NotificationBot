@@ -2,6 +2,8 @@ package io.dzianish.notificationbot.controller.impl;
 
 import io.dzianish.notificationbot.agent.Agent;
 import io.dzianish.notificationbot.controller.TgConversationController;
+import io.dzianish.notificationbot.dto.AgentRequest;
+import io.dzianish.notificationbot.dto.AgentResponse;
 import io.dzianish.notificationbot.sender.TgMessageSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,14 +26,19 @@ public class ConversationControllerImpl implements TgConversationController {
 
     @Override
     public void handle(Message message) {
-        var cleanMessage = extractCleanMessage(message);
-        var answer = agent.talk(cleanMessage);
-        SendMessage response = buildResponse(message, answer);
+        var agentRequest = buildAgentRequest(message);
+        var agentResponse = agent.talk(agentRequest);
+        SendMessage response = buildResponse(message, agentResponse);
         messageSender.send(response);
     }
 
     @Override
     public boolean canHandle(Message message) {
+        String cleanMessage = extractCleanMessage(message);
+        if (cleanMessage == null) {
+            return false;
+        }
+
         boolean isGroup = isGroupMessage(message);
         if (!isGroup) {
             return true;
@@ -40,12 +47,30 @@ public class ConversationControllerImpl implements TgConversationController {
     }
 
 
-    private SendMessage buildResponse(Message request, String responseMessage) {
-        var response = new SendMessage(request.getChatId(), responseMessage);
+    private AgentRequest buildAgentRequest(Message message) {
+        var cleanMessage = extractCleanMessage(message);
+
+        return AgentRequest.builder()
+                .text(cleanMessage)
+                .languageCode(message.getFrom().getLanguageCode())
+                .sessionId(createAgentSessionId(message))
+                .build();
+    }
+
+    private SendMessage buildResponse(Message request, AgentResponse agentResponse) {
+        float confidence = agentResponse.getConfidence() * 100;
+        var confidenceMsg = String.format("\n\n`confidence: %.2f%%`", confidence);
+
+        var response = new SendMessage(request.getChatId(), agentResponse.getText() + confidenceMsg);
+        response.enableMarkdown(true);
         if (isGroupMessage(request)) {
             response.setReplyToMessageId(request.getMessageId());
         }
         return response;
+    }
+
+    private String createAgentSessionId(Message message) {
+        return message.getChatId() + ":" + message.getFrom().getId();
     }
 
     private boolean isGroupMessage(Message message) {
@@ -54,6 +79,10 @@ public class ConversationControllerImpl implements TgConversationController {
 
     private String extractCleanMessage(Message message) {
         String text = message.getText();
+
+        if (text == null) {
+            return null;
+        }
 
         if (isGroupMessage(message)) {
             String mention = extractMention(message);

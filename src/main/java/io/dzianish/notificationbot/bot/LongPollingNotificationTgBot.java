@@ -5,12 +5,10 @@ import io.dzianish.notificationbot.controller.TgControllerFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 @Component
-public class LongPollingNotificationTgBot extends TelegramLongPollingBot implements SelfRegisteredTgBot {
+public class LongPollingNotificationTgBot extends TelegramLongPollingBot {
     private final TgBotCredentials credentials;
     private final TgControllerFacade controllerFacade;
 
@@ -33,10 +31,5 @@ public class LongPollingNotificationTgBot extends TelegramLongPollingBot impleme
     @Override
     public String getBotToken() {
         return credentials.getToken();
-    }
-
-    @Override
-    public void register(TelegramBotsApi api) throws TelegramApiRequestException {
-        api.registerBot(this);
     }
 }

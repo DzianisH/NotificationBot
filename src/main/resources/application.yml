@@ -2,3 +2,11 @@ tg:
   creds:
     name: N0tificati0nBot
     token: ${TG_BOT_TOKEN}
+
+agent:
+  df:
+    project-id: notificationbot-fjseor
+
+logging:
+  level:
+    io.dzianish.notificationbot.agent.dialogflow.DfAgentFacade: debug

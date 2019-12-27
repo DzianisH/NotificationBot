@@ -1,5 +1,8 @@
 package io.dzianish.notificationbot.agent;
 
+import io.dzianish.notificationbot.dto.AgentRequest;
+import io.dzianish.notificationbot.dto.AgentResponse;
+
 public interface Agent {
-    String talk(String phrase);
+    AgentResponse talk(AgentRequest request);
 }
